@@ -45,8 +45,14 @@ public class Main extends Application {
     public static final int BOUNCER_HEIGHT = 10;
     public static final int BOUNCER_WIDTH = 70;
     public int BOUNCER_SPEED = 0;
-    public int BALL_X_SPEED = 2;
-    public int BALL_Y_SPEED = -2;
+    public int BALL_X_DIRECTION = 1;
+    public int BALL_X_SPEED_START = 2 * BALL_X_DIRECTION;
+    public double BALL_X_SPEED = BALL_X_SPEED_START;
+    public double BALL_X_SPEED_CHANGE = Math.sqrt(6) * BALL_X_DIRECTION;
+    public int BALL_Y_DIRECTION = -1;
+    public int BALL_Y_SPEED_START = 2 * BALL_Y_DIRECTION;
+    public double BALL_Y_SPEED =  BALL_Y_SPEED_START;
+    public double BALL_Y_SPEED_CHANGE = Math.sqrt(2) * BALL_Y_DIRECTION;
     public int BALL_X_START = 245;
     public int BALL_Y_START = 300;
     public boolean disableInput = false;
@@ -164,21 +170,8 @@ public class Main extends Application {
             if (myBouncer.getX() >= myScene.getWidth() - BOUNCER_WIDTH) {
                 myBouncer.setX(myScene.getWidth() - BOUNCER_WIDTH);
             }
-
-            if (isBounced(myBall, myBouncer) == "Vertical") {
-                myBall.setCenterY(myBall.getCenterY() + BALL_Y_SPEED * -1);
-                BALL_Y_SPEED = BALL_Y_SPEED * -1;
-            }
-            if (isBounced(myBall, myBouncer) == "Horizontal") {
-                myBall.setCenterX(myBall.getCenterX() + BOUNCER_SPEED);
-                myBall.setCenterY(myBall.getCenterY() + BOUNCER_HEIGHT);
-                BALL_X_SPEED = BALL_X_SPEED * -1;
-            }
-            if (isBounced(myBall, myBouncer) == "Diagonal"){
-                myBall.setCenterX(myBall.getCenterX() + -1 * BALL_X_SPEED);
-                myBall.setCenterY(myBall.getCenterY() + -1 * BALL_Y_SPEED);
-                BALL_Y_SPEED = BALL_Y_SPEED * -1;
-                BALL_X_SPEED = BALL_X_SPEED * -1;
+            if (myBall.getCenterY() >= myBouncer.getY() - myBall.getRadius()){
+                checkForBouncerCollision();
             }
             for (int i = 0; i < myBlocks.size(); i++){
                 Rectangle block = myBlocks.get(i);
@@ -198,6 +191,46 @@ public class Main extends Application {
             if (score == BlOCK_AMOUNT * BLOCK_ROWS){
                 restartGame(animation, youWon);
 
+            }
+        }
+
+    }
+    private void checkForBouncerCollision(){
+        String direction = isBounced(myBall, myBouncer);
+        if (direction != null){
+            switch (direction){
+                case "Vertical" -> {
+//
+//                    myBall.setCenterY(myBall.getCenterY() + BALL_Y_SPEED * -1);
+//                    BALL_Y_SPEED = BALL_Y_SPEED * -1;
+//                    BALL_X_SPEED += BOUNCER_SPEED / 2;
+                    double ballX = myBall.getCenterX();
+                    double bouncerX = myBouncer.getX();
+                    double bouncerWidth = myBouncer.getWidth();
+                    BALL_Y_DIRECTION = -1 * BALL_Y_DIRECTION;
+                    if (ballX >= bouncerX + bouncerWidth / 3 && ballX <= bouncerX +  2 * bouncerWidth / 3){
+                        BALL_Y_SPEED = BALL_Y_DIRECTION * BALL_Y_SPEED_START;
+                        BALL_X_SPEED = BALL_X_DIRECTION * BALL_X_SPEED_START;
+                    }
+                    else if (ballX < bouncerX + bouncerWidth / 3){
+                        BALL_Y_SPEED = BALL_Y_DIRECTION * BALL_Y_SPEED_CHANGE;
+                    }
+                    else if (ballX > bouncerX + 2 * bouncerWidth / 3){
+
+                    }
+                    myBall.setCenterY(myBall.getCenterY() + BALL_Y_SPEED * -1);
+                }
+                case "Horizontal" -> {
+                    myBall.setCenterX(myBall.getCenterX() + BOUNCER_SPEED);
+                    myBall.setCenterY(myBall.getCenterY() + BOUNCER_HEIGHT);
+                    BALL_X_SPEED = BALL_X_SPEED * -1;
+                }
+                case "Diagonal" -> {
+                    myBall.setCenterX(myBall.getCenterX() + -1 * BALL_X_SPEED);
+                    myBall.setCenterY(myBall.getCenterY() + -1 * BALL_Y_SPEED);
+                    BALL_Y_SPEED = BALL_Y_SPEED * -1;
+                    BALL_X_SPEED = BALL_X_SPEED * -1;
+                }
             }
         }
 
