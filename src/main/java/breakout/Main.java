@@ -50,7 +50,7 @@ public class Main extends Application {
     private ArrayList<Rectangle> backupBlocks = new ArrayList<>();
     public static final int BLOCK_SIZE = 40;
     public int BlOCK_AMOUNT_PER_ROW = 500 / (BLOCK_SIZE + 10) - 2;
-    public int BLOCK_ROWS = 2;
+    public int BLOCK_ROWS = 4;
 
     //Bouncer initialized
     private Rectangle myBouncer;
@@ -63,7 +63,7 @@ public class Main extends Application {
     //Ball initialized
     private Circle myBall;
     public static final int BALL_SIZE = 5;
-    public static final double BALL_SPEED = Math.sqrt(8);
+    public static final double BALL_SPEED = 4;
     public static double startAngle = 75;
     public double BALL_X_SPEED = BALL_SPEED * Math.cos(Math.toRadians(startAngle));
     public double BALL_Y_SPEED = -BALL_SPEED * Math.sin(Math.toRadians(startAngle));
@@ -181,8 +181,14 @@ public class Main extends Application {
             myBall.setCenterY(myBall.getCenterY() + BALL_Y_SPEED);
 
             //the following functions both check if the bouncer and blocks have collided with the ball respectively
-            checkForBouncerCollision();
-            checkBlocksForCollision();
+            //they only check just before the ball is at a height where it could possibly hit the blocks or paddle
+            //this is to prevent the amount of unnecessary loops
+            if (myBall.getCenterY() >= BOUNCER_Y_START - 2 * BALL_SIZE){
+                checkForBouncerCollision();
+            }
+            if (myBall.getCenterY() < myBlocks.get(myBlocks.size() - 1).getY() + BLOCK_SIZE + 2 * BALL_SIZE){
+                checkBlocksForCollision();
+            }
         }
 
     }
