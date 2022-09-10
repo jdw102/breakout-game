@@ -1,7 +1,12 @@
 package breakout;
 
+import javafx.geometry.Bounds;
+import javafx.scene.Group;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 
 public class Bouncer extends Rectangle {
@@ -45,5 +50,19 @@ public class Bouncer extends Rectangle {
     public void resetBouncer(){
         this.setX(bouncerXStart);
         bouncerSpeed = 0;
+    }
+
+    public boolean checkForPowerUp(PowerUp powerUp, ArrayList<Ball> balls){
+        Bounds intersect = Shape.intersect(this, powerUp).getBoundsInLocal();
+        if (!intersect.isEmpty()){
+            activatePowerUp(powerUp, balls);
+            return true;
+        }
+        return false;
+    }
+    public void activatePowerUp(PowerUp powerUp, ArrayList<Ball> balls){
+        switch (powerUp.getPowerUpType()){
+            case "DuplicateBall" -> ((DuplicateBall) powerUp).duplicateBalls(2, balls);
+        }
     }
 }

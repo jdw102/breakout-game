@@ -8,35 +8,42 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static breakout.Main.BOARD_HEIGHT;
 import static breakout.Main.myGame;
 
 
 public class Ball extends Circle{
-    public int ballSize;
+    public double ballSize;
     public double ballSpeed;
-    public double startAngle = 75;
+    public double startAngle = 90;
     public double ballXSpeed;
     public double ballYSpeed;
-    public int ballXStart;
-    public int ballYStart;
+    public double ballXStart;
+    public double ballYStart;
     public static final Paint BALL_COLOR = Color.WHITE;
 
     public Ball(){
         this(5, 4, 245, 300);
     }
-    public Ball(int size, double speed, int startx, int starty){
+    public Ball(double size, double speed, double x, double y){
         ballSize = size;
         ballSpeed = speed;
-        ballXSpeed = ballSpeed * Math.cos(Math.toRadians(startAngle));
-        ballYSpeed = -ballSpeed * Math.sin(Math.toRadians(startAngle));
-        ballXStart = startx;
-        ballYStart = starty;
+        setStartVel();
+        ballXStart = x;
+        ballYStart = y;
         this.setRadius(size);
         this.setCenterX(ballXStart);
         this.setCenterY(ballYStart);
         this.setFill(BALL_COLOR);
+    }
+    public void setStartVel(){
+        Random r = new Random();
+        double var = -35 + 70 * r.nextDouble();
+        ballXSpeed = ballSpeed * Math.cos(Math.toRadians(startAngle + var));
+        ballYSpeed = -ballSpeed * Math.sin(Math.toRadians(startAngle + var));
     }
 
     public void moveBall(){
@@ -53,10 +60,10 @@ public class Ball extends Circle{
             ballYSpeed *= -1;
         }
     }
-    public void checkBlocksForCollision(ArrayList<Block> blocks, Group root, Game game){
+    public void checkBlocksForCollision(ArrayList<Block> blocks, ArrayList<PowerUp> powerUps, Group root, Game game){
         //every block is looped through to see if it has collided with the ball
         for (int i = 0; i < blocks.size(); i++){
-            Rectangle block = blocks.get(i);
+            Block block = blocks.get(i);
             //isBounced checks if the ball has collided and in which direction
             String direction = isBounced(block);
             if (direction != null){
@@ -72,6 +79,8 @@ public class Ball extends Circle{
                 root.getChildren().remove(blocks.get(i));
                 blocks.remove(i);
                 game.scoredPoint();
+                System.out.println("testing");
+                generatePowerUp(block, powerUps, root);
             }
         }
     }
@@ -118,8 +127,13 @@ public class Ball extends Circle{
     public void resetBall(){
         this.setCenterX(ballXStart);
         this.setCenterY(ballYStart);
-        ballXSpeed = ballSpeed * Math.cos(Math.toRadians(startAngle));
-        ballYSpeed = -ballSpeed * Math.sin(Math.toRadians(startAngle));
+        setStartVel();
+    }
+    public void generatePowerUp(Block b, ArrayList<PowerUp> powerUps, Group root){
+            PowerUp pu = new DuplicateBall(b);
+            powerUps.add(pu);
+            root.getChildren().add(pu);
+            System.out.println(root.getChildren().toString());
     }
 
 }
