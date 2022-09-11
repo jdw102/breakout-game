@@ -47,7 +47,7 @@ public class Main extends Application {
     public int BOUNCER_WIDTH = 70;
     public int BOUNCER_HEIGHT = 10;
     public int BOUNCER_OFFSET = 0;
-    public int BOUNCER_SPEED = 6;
+    public int BOUNCER_SPEED = 8;
 
 
     //root, scene, and animation initialized

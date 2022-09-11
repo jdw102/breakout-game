@@ -2,6 +2,7 @@ package breakout;
 
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
@@ -52,17 +53,20 @@ public class Bouncer extends Rectangle {
         bouncerSpeed = 0;
     }
 
-    public boolean checkForPowerUp(PowerUp powerUp, ArrayList<Ball> balls){
+    public boolean checkForPowerUp(PowerUp powerUp, ArrayList<Ball> balls, Group root, int lives, ArrayList<Circle> dispLives, ArrayList<Block> blocks, Game game){
         Bounds intersect = Shape.intersect(this, powerUp).getBoundsInLocal();
         if (!intersect.isEmpty()){
-            activatePowerUp(powerUp, balls);
+            activatePowerUp(powerUp, balls, root, lives, dispLives, blocks, game);
             return true;
         }
         return false;
     }
-    public void activatePowerUp(PowerUp powerUp, ArrayList<Ball> balls){
+    public void activatePowerUp(PowerUp powerUp, ArrayList<Ball> balls, Group root, int lives, ArrayList<Circle> dispLives, ArrayList<Block> blocks, Game game){
         switch (powerUp.getPowerUpType()){
-            case "DuplicateBall" -> ((DuplicateBall) powerUp).duplicateBalls(2, balls);
+            case "DuplicateBall" -> ((DuplicateBall) powerUp).duplicateBalls(2, balls, root);
+            case "ExtraLife" -> ((ExtraLife) powerUp).addLife(lives, dispLives, root, game);
+            case "Laser" -> ((Laser) powerUp).activateLaser(blocks, this, root, game);
+            case "ScoreMultiplier" -> ((ScoreMultiplier) powerUp).multiplyScore(game);
         }
     }
 }

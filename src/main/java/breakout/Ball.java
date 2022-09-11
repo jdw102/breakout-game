@@ -7,6 +7,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -60,7 +61,7 @@ public class Ball extends Circle{
             ballYSpeed *= -1;
         }
     }
-    public void checkBlocksForCollision(ArrayList<Block> blocks, ArrayList<PowerUp> powerUps, Group root, Game game){
+    public void checkBlocksForCollision(ArrayList<Block> blocks, ArrayList<PowerUp> powerUps, ArrayList<Ball> balls, Group root, Game game){
         //every block is looped through to see if it has collided with the ball
         for (int i = 0; i < blocks.size(); i++){
             Block block = blocks.get(i);
@@ -75,12 +76,8 @@ public class Ball extends Circle{
                     //a vertical bounce reverses the y velocity
                     case "Vertical" -> ballYSpeed = ballYSpeed * -1;
                 }
+                block.destroyBlock(game, root, powerUps, blocks, balls);
                 //the block is removed from both the root and array instance variable
-                root.getChildren().remove(blocks.get(i));
-                blocks.remove(i);
-                game.scoredPoint();
-                System.out.println("testing");
-                generatePowerUp(block, powerUps, root);
             }
         }
     }
@@ -129,11 +126,8 @@ public class Ball extends Circle{
         this.setCenterY(ballYStart);
         setStartVel();
     }
-    public void generatePowerUp(Block b, ArrayList<PowerUp> powerUps, Group root){
-            PowerUp pu = new DuplicateBall(b);
-            powerUps.add(pu);
-            root.getChildren().add(pu);
-            System.out.println(root.getChildren().toString());
+    public void lost(Group root, ArrayList<Ball> balls){
+         balls.remove(this);
+         root.getChildren().remove(this);
     }
-
 }

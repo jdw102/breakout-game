@@ -56,22 +56,20 @@ public class Game {
     public ArrayList<Integer> highestScores;
     public Text finalScoreText;
     public ArrayList<PowerUp> powerUps;
-    public ArrayList<PowerUp> usedPowerUps;
     public ArrayList<Ball> myBalls;
     public Ball startBall;
-    public ArrayList<Ball> lostBalls;
+    public double blockThresh;
+    public int scoreMultiplier = 1;
 
     public Game(int ballSize, int ballSpeed, int bouncerWidth, int bouncerHeight, int bouncerStart, int bouncerSpeed, int height, int width, int lev){
         screenWidth = width;
         screenHeight = height;
         bouncerPos = bouncerStart;
         bouncerSpeedMag = bouncerSpeed;
-        lostBalls = new ArrayList<>();
         myBalls = new ArrayList<>();
         startBall = new Ball(ballSize, ballSpeed, screenWidth / 2, bouncerStart - ballSize);
         myBalls.add(startBall);
         myBouncer = new Bouncer(screenWidth / 2 - bouncerWidth / 2, bouncerStart, bouncerHeight, bouncerWidth);
-        usedPowerUps = new ArrayList<>();
 
         startText = setText("PRESS SPACE TO START\n\n DESTROY THE BRICKS\n\n DON'T LOSE THE BALL", screenWidth / 2, screenHeight  * 5 / 8);
 
@@ -124,13 +122,6 @@ public class Game {
             root.getChildren().addAll(myBalls);
         }
     }
-    private void addLife(){
-        lives++;
-        Circle last = displayedLives.get(displayedLives.size() - 1);
-        Circle life = new Circle(last.getCenterX() + 10, 40, 3, Color.WHITE);
-        displayedLives.add(life);
-        root.getChildren().add(life);
-    }
     private Text setText(String s, int x, int y){
         Text t = new Text(s);
         t.setFont(Font.font("comic-sans", FontWeight.BOLD, FontPosture.REGULAR, 20));
@@ -146,22 +137,20 @@ public class Game {
             myBouncer.checkBounds(screenWidth);
             myBouncer.moveBouncer();
 
-            for (Ball b: myBalls){
+            for (int i = 0 ; i < myBalls.size(); i++){
+                Ball b = myBalls.get(i);
                 b.checkBounds(screenWidth, bouncerPos);
                 b.moveBall();
                 if (b.getCenterY() >= bouncerPos - 2 * b.getRadius()){
                     b.checkForBouncerCollision(myBouncer);
                 }
-                if (b.getCenterY() < myBlocks.get(myBlocks.size() - 1).getY() + blockHeight + 2 * b.getRadius()){
-                    b.checkBlocksForCollision(myBlocks, powerUps, root, this);
+                if (b.getCenterY() < blockThresh + b.getRadius()){
+                    b.checkBlocksForCollision(myBlocks, powerUps, myBalls, root, this);
                 }
                 if (b.getCenterY() > screenHeight + b.getRadius()){
-                    lostBalls.add(b);
+                    b.lost(root, myBalls);
                 }
             }
-            myBalls.removeAll(lostBalls);
-            root.getChildren().removeAll(lostBalls);
-            lostBalls.removeAll(lostBalls);
             if (myBalls.size() == 0){
                 removeLife();
             }
@@ -172,16 +161,13 @@ public class Game {
             //the following functions both check if the bouncer and blocks have collided with the ball respectively
             //they only check just before the ball is at a height where it could possibly hit the blocks or paddle
             //this is to prevent the amount of unnecessary loops
-            for (PowerUp pu: powerUps){
+            for (int i = 0; i < powerUps.size(); i++){
+                PowerUp pu = powerUps.get(i);
+                pu.checkState(screenHeight, powerUps, myBouncer, myBalls, root, lives, displayedLives, myBlocks, this);
                 pu.movePowerUp();
-                pu.checkState(screenHeight, usedPowerUps, myBouncer, myBalls);
             }
-            powerUps.removeAll(usedPowerUps);
-            root.getChildren().removeAll(usedPowerUps);
-            usedPowerUps.removeAll(usedPowerUps);
         }
     }
-
     private void readLevel(int level) {
         File file = new File("C:\\Users\\User\\IdeaProjects\\breakout\\src\\main\\resources\\breakout\\level" + level + ".txt");
         int target = 0;
@@ -203,6 +189,7 @@ public class Game {
                 y+= blockHeight + 2;
                 System.out.println(row);
             }
+            blockThresh = myBlocks.get(myBlocks.size() - 1).getY() + blockHeight;
             root.getChildren().addAll(myBlocks);
             sc.close();
             }
@@ -211,13 +198,10 @@ public class Game {
         }
         backupBlocks.addAll(myBlocks);
     }
-    public void endGame(Text message){
-
-    }
-
     public void scoredPoint(){
-        score++;
+        score += 100 * scoreMultiplier;
         currentScore.setText("" + score);
+        currentScore.setX(screenWidth / 2 - currentScore.getLayoutBounds().getWidth() / 2);
         if (myBlocks.size() == 0){
             if (level == lastLevel){
                 enterScore(score);
@@ -253,7 +237,7 @@ public class Game {
                         playerStarted();
                     }
                     case L -> {
-                        addLife();
+                        ExtraLife.addLife(lives, displayedLives, root, this);
                     }
                     case R -> {
                         for (Ball b: myBalls) {b.resetBall();}
@@ -276,11 +260,16 @@ public class Game {
     public void clearScreen(){
         root.getChildren().removeAll(myBlocks);
         root.getChildren().removeAll(myBalls);
+        for (int i = 0; i < powerUps.size(); i++){
+            powerUps.get(i).iconRoot.getChildren().removeAll(powerUps.get(i).iconRoot.getChildren());
+        }
+        root.getChildren().removeAll(powerUps);
         root.getChildren().remove(startText);
         root.getChildren().remove(myBouncer);
         root.getChildren().removeAll(displayedLives);
         root.getChildren().remove(currentLevel);
         root.getChildren().remove(currentScore);
+        root.getChildren().remove(displayHighScore);
     }
     public void resetGame(Text message, int l, int s){
         clearScreen();
@@ -300,6 +289,11 @@ public class Game {
 
             root.getChildren().add(currentScore);
             myBlocks.removeAll(myBlocks);
+            myBalls.removeAll(myBalls);
+            powerUps.removeAll(powerUps);
+            startBall.resetBall();
+            myBalls.add(startBall);
+            root.getChildren().addAll(myBalls);
             readLevel(l);
             level = l;
             currentLevel.setText("LEVEL " + level);
@@ -312,6 +306,7 @@ public class Game {
             myBouncer.resetBouncer();
             highScore = getHighScore();
             displayHighScore.setText("HS: " + highScore);
+            root.getChildren().add(displayHighScore);
             youWon.setText("YOU WON!");
             youLost.setText("YOU LOST!");
             finalScoreText = null;
@@ -365,5 +360,8 @@ public class Game {
             System.out.println("test");
         }
         write.close();
+    }
+    public void incrementLives(){
+        lives++;
     }
 }
