@@ -23,8 +23,8 @@ public class ExtraLife extends PowerUp{
     }
 
     public static void addLife(int lives, ArrayList<Circle> dispLives, Group root, Game game){
-        game.incrementLives();
         if (lives < 8){
+            game.incrementLives();
             Circle last = dispLives.get(dispLives.size() - 1);
             Circle life = new Circle(last.getCenterX() + 10, 40, 3, Color.WHITE);
             dispLives.add(life);

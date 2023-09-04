@@ -43,11 +43,11 @@ public class Main extends Application {
 
 
     public int BALL_SIZE = 5;
-    public int BALL_SPEED = 4;
+    public int BALL_SPEED = 5;
     public int BOUNCER_WIDTH = 70;
     public int BOUNCER_HEIGHT = 10;
     public int BOUNCER_OFFSET = 0;
-    public int BOUNCER_SPEED = 8;
+    public int BOUNCER_SPEED = 7;
 
 
     //root, scene, and animation initialized

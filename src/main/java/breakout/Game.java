@@ -81,7 +81,7 @@ public class Game {
         currentScore = setText( "" + score, screenWidth / 2, 30);
 
         highScore = getHighScore();
-        displayHighScore = setText("HS: " + highScore, 45, 30);
+        displayHighScore = setText("HS: " + highScore, 100, 30);
 
         youLost = setText("GAME OVER", screenWidth / 2, screenHeight / 2);
 
@@ -108,18 +108,28 @@ public class Game {
         root.getChildren().addAll(displayedLives);
     }
     private void removeLife(){
+        gameStarted = false;
         lives--;
         Circle last = displayedLives.get(displayedLives.size() - 1);
         displayedLives.remove(last);
         root.getChildren().remove(last);
         if (lives == 0) {
             enterScore(score);
-            resetGame(youLost, 1, 0);
+            resetGame(youLost, 1, 0, 3);
         }
         else {
+//            PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
+//            delay.setOnFinished(e -> {
+//                myBouncer.resetBouncer();
+//                startBall.resetBall();
+//                myBalls.add(startBall);
+//                root.getChildren().addAll(myBalls);
+//                gameStarted = true;
+//            });
             startBall.resetBall();
             myBalls.add(startBall);
             root.getChildren().addAll(myBalls);
+            gameStarted = true;
         }
     }
     private Text setText(String s, int x, int y){
@@ -205,7 +215,7 @@ public class Game {
         if (myBlocks.size() == 0){
             if (level == lastLevel){
                 enterScore(score);
-                resetGame(youWon, 1, 0);
+                resetGame(youWon, 1, 0, 3);
             }
             else{
                 level++;
@@ -255,7 +265,7 @@ public class Game {
     public void jumpToLevel(int lev){
         level = lev;
         newLevel.setText("WELCOME TO LEVEL " + level);
-        resetGame(newLevel, lev, score);
+        resetGame(newLevel, lev, score, lives);
     }
     public void clearScreen(){
         root.getChildren().removeAll(myBlocks);
@@ -271,7 +281,7 @@ public class Game {
         root.getChildren().remove(currentScore);
         root.getChildren().remove(displayHighScore);
     }
-    public void resetGame(Text message, int l, int s){
+    public void resetGame(Text message, int lev, int s, int liv){
         clearScreen();
         root.getChildren().add(message);
         if (finalScoreText != null){
@@ -294,11 +304,12 @@ public class Game {
             startBall.resetBall();
             myBalls.add(startBall);
             root.getChildren().addAll(myBalls);
-            readLevel(l);
-            level = l;
+            readLevel(lev);
+            level = lev;
+            scoreMultiplier = level;
             currentLevel.setText("LEVEL " + level);
             root.getChildren().add(currentLevel);
-            lives = 3;
+            lives = liv;
             setLives(lives);
             score = s;
             currentScore.setText("" + score);
@@ -335,10 +346,10 @@ public class Game {
         Collections.sort(highestScores, Collections.reverseOrder());
         int pos = highestScores.indexOf(score);
         if (pos == 0){
-            finalScoreText = setText("NEW HIGH SCORE!", screenWidth / 2, screenHeight * 2 / 3);
+            finalScoreText = setText("NEW HIGH SCORE!", screenWidth / 2, screenHeight * 5 / 8);
         }
         else if (pos < 10){
-            finalScoreText = setText("TOP 10 SCORE!", screenWidth / 2, screenHeight * 2 / 3);
+            finalScoreText = setText("TOP 10 SCORE!", screenWidth / 2, screenHeight * 5 / 8);
         }
         else{
             finalScoreText = null;

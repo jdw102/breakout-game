@@ -38,12 +38,12 @@ public class ScoreMultiplier extends PowerUp{
         return label;
     }
     public void multiplyScore(Game game){
-        if (game.scoreMultiplier < multiplier){
+        if (game.scoreMultiplier < game.scoreMultiplier * multiplier){
             game.root.getChildren().remove(icon);
             PauseTransition delay = new PauseTransition(Duration.seconds(10));
-            game.scoreMultiplier = multiplier;
+            game.scoreMultiplier *= multiplier;
             delay.setOnFinished(e ->{
-                game.scoreMultiplier = 1;
+                game.scoreMultiplier = game.level;
             });
             delay.play();
         }

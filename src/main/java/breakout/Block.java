@@ -7,11 +7,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Block extends Rectangle {
-    private double scoreMult2Chance = 0.1;
-    private double scoreMult3Chance = 0.05;
-    private double duplicateBallChance = 0.2;
-    private double laserChance = 0.15;
-    private double extraLifeChance = 0.05;
+    private double scoreMult2Chance = 0.03;
+    private double scoreMult3Chance = 0.02;
+    private double duplicateBallChance = 0.05;
+    private double laserChance = 0.05;
+    private double extraLifeChance = 0.01;
 
 
     public Block(){
